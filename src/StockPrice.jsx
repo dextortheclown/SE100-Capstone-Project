@@ -16,7 +16,12 @@ const StockPrice = ({ symbol, calculateProfitLoss }) => {
         const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
         const response = await axios.get(url);
         const data = response.data['Global Quote'];
-        setPrice(parseFloat(data['05. price']));
+        
+        if (data && data['05. price']) {
+          setPrice(parseFloat(data['05. price']));
+        } else {
+          throw new Error("Invalid response data");
+        }
       } catch (error) {
         setError(error.message);
       } finally {

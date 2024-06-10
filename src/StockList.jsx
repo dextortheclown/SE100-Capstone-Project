@@ -14,14 +14,15 @@ function StockList({ stocks }) {
       </thead>
       <tbody>
         {stocks.map((stock) => (
-          <tr key={stock.id}> {/* Assuming each stock has a unique id */}
+          <tr key={stock.id}>
             <td>{stock.symbol}</td>
             <td>{stock.quantity}</td>
             <td>
-              <StockPrice symbol={stock.symbol} />
+              <StockPrice key={`${stock.id}-price`} symbol={stock.symbol} />
             </td>
             <td>
               <StockPrice
+                key={`${stock.id}-profit-loss`}
                 symbol={stock.symbol}
                 calculateProfitLoss={(price) =>
                   ((price - stock.purchasePrice) * stock.quantity).toFixed(2)
