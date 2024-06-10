@@ -11,22 +11,30 @@ function AddStockForm({ onAddStock }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    try {
+      const fetchedPrice = await fetchStockPrice(stockSymbol);
+      if (fetchedPrice) {
+        const totalPurchaseCost = quantity * purchasePrice;
 
-    const totalPurchaseCost = quantity * purchasePrice;
+        onAddStock({
+          id: new Date().getTime(), // Create a unique ID for each stock
+          symbol: stockSymbol,
+          quantity,
+          purchasePrice,
+          totalPurchaseCost,
+        });
 
-    onAddStock({
-      id: new Date().getTime(), // Create a unique ID for each stock
-      symbol: stockSymbol,
-      quantity,
-      purchasePrice,
-      totalPurchaseCost,
-    });
-
-    setStockSymbol("");
-    setQuantity(0);
-    setPurchasePrice(0);
-
-    await fetchStockPrice(stockSymbol);
+        setStockSymbol("");
+        setQuantity(0);
+        setPurchasePrice(0);
+        setFetchedPrice(fetchedPrice);
+        setError(null);
+      }
+    } catch (error) {
+      setError("Error fetching price. Please check the stock symbol and try again.");
+      setFetchedPrice(null);
+    }
   };
 
   const fetchStockPrice = async (symbol) => {
@@ -37,15 +45,13 @@ function AddStockForm({ onAddStock }) {
       const data = response.data["Global Quote"];
       
       if (data && data["05. price"]) {
-        setFetchedPrice(parseFloat(data["05. price"]));
-        setError(null);
+        return parseFloat(data["05. price"]);
       } else {
         throw new Error("Invalid response data");
       }
     } catch (error) {
       console.error("Error fetching price:", error.message);
-      setFetchedPrice(null);
-      setError("Error fetching price. Please try again later.");
+      throw error;
     }
   };
 
